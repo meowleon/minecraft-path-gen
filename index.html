@@ -7,16 +7,20 @@
   <style>
     body { font-family: Arial, sans-serif; background: #f4f4f4; text-align: center; padding: 20px; }
     .controls { margin-bottom: 20px; }
-    input { margin: 5px; padding: 5px; }
-    button { padding: 8px 15px; margin-top: 10px; cursor: pointer; }
-    .row { display: flex; justify-content: center; margin: 2px 0; }
-    .block { padding: 6px 10px; background: white; border: 1px solid #ccc; margin: 1px; border-radius: 4px; }
+    input, button { margin: 5px; padding: 5px; }
+    button { padding: 8px 15px; cursor: pointer; }
+    .row { display: flex; justify-content: center; margin: 1px 0; }
+    .block { width: 32px; height: 32px; margin: 1px; image-rendering: pixelated; }
+    .block-option { display: inline-flex; align-items: center; margin: 5px; cursor: pointer; }
+    .block-option img { width: 24px; height: 24px; margin-right: 5px; image-rendering: pixelated; }
   </style>
 </head>
 <body>
   <h1>Minecraft Path Generator</h1>
+
   <div class="controls">
-    <input id="blocks" type="text" value="dirt, gravel, cobblestone" size="30"> <br>
+    <div id="blockSelector"></div>
+    <br>
     <input id="width" type="number" value="3" min="1"> Width <br>
     <input id="length" type="number" value="10" min="1"> Length <br>
     <button onclick="generatePath()">Generate Path</button>
@@ -25,11 +29,53 @@
   <div id="path"></div>
 
   <script>
+    // Expand this dictionary to include all Minecraft blocks with textures from the wiki
+    const blockSprites = {
+      dirt: "https://minecraft.wiki/images/Dirt_JE3_BE2.png",
+      grass: "https://minecraft.wiki/images/Grass_Block_JE7_BE6.png",
+      gravel: "https://minecraft.wiki/images/Gravel_JE6_BE3.png",
+      cobblestone: "https://minecraft.wiki/images/Cobblestone_JE5_BE3.png",
+      sand: "https://minecraft.wiki/images/Sand_JE5_BE3.png",
+      stone: "https://minecraft.wiki/images/Stone_JE6_BE3.png",
+      oak_planks: "https://minecraft.wiki/images/Oak_Planks_JE6_BE2.png",
+      coarse_dirt: "https://minecraft.wiki/images/Coarse_Dirt_JE2_BE2.png",
+      mossy_cobblestone: "https://minecraft.wiki/images/Mossy_Cobblestone_JE5_BE2.png",
+      rooted_dirt: "https://minecraft.wiki/images/Rooted_Dirt_JE1_BE1.png"
+    };
+
+    // Dynamically create block selection checkboxes
+    function createBlockSelector() {
+      const selector = document.getElementById('blockSelector');
+      selector.innerHTML = "";
+      for (const [block, url] of Object.entries(blockSprites)) {
+        const label = document.createElement('label');
+        label.className = 'block-option';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = block;
+
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = block;
+
+        label.appendChild(checkbox);
+        label.appendChild(img);
+        label.appendChild(document.createTextNode(block.replace(/_/g, ' ')));
+        selector.appendChild(label);
+      }
+    }
+
     function generatePath() {
-      const blocks = document.getElementById('blocks').value.split(',').map(b => b.trim()).filter(Boolean);
+      const selected = Array.from(document.querySelectorAll('#blockSelector input:checked')).map(cb => cb.value);
       const width = parseInt(document.getElementById('width').value);
       const length = parseInt(document.getElementById('length').value);
       const pathDiv = document.getElementById('path');
+
+      if (selected.length === 0) {
+        alert("Please select at least one block type.");
+        return;
+      }
 
       pathDiv.innerHTML = '';
 
@@ -37,14 +83,20 @@
         const rowDiv = document.createElement('div');
         rowDiv.className = 'row';
         for (let j = 0; j < width; j++) {
-          const block = document.createElement('div');
-          block.className = 'block';
-          block.textContent = blocks[Math.floor(Math.random() * blocks.length)];
-          rowDiv.appendChild(block);
+          const blockType = selected[Math.floor(Math.random() * selected.length)];
+          const img = document.createElement('img');
+          img.className = 'block';
+          img.src = blockSprites[blockType] || "https://minecraft.wiki/images/Barrier_JE2_BE2.png";
+          img.alt = blockType;
+          img.title = blockType.replace(/_/g, ' ');
+          rowDiv.appendChild(img);
         }
         pathDiv.appendChild(rowDiv);
       }
     }
+
+    // Initialize the block selector
+    createBlockSelector();
   </script>
 </body>
 </html>
