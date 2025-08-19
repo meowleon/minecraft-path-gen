@@ -144,15 +144,29 @@ function showCategory(category, container) {
     }
 
     function generatePath() {
-      const selected = Array.from(document.querySelectorAll('#blockSelector input:checked')).map(cb => cb.value);
-      const width = parseInt(document.getElementById('width').value);
-      const length = parseInt(document.getElementById('length').value);
-      const pathDiv = document.getElementById('path');
+  const selectedBlocks = Array.from(document.querySelectorAll('#blockSelector input:checked')).map(cb => cb.value);
+  const width = parseInt(document.getElementById('width').value);
+  const length = parseInt(document.getElementById('length').value);
 
-      if (selected.length === 0) {
-        alert("Please select at least one block type.");
-        return;
-      }
+  const container = document.getElementById('pathContainer');
+  container.innerHTML = "";
+  container.style.gridTemplateColumns = `repeat(${width}, 34px)`; // match image size
+
+  if (selectedBlocks.length === 0) {
+    container.textContent = "Please select at least one block!";
+    return;
+  }
+
+  for (let i = 0; i < width * length; i++) {
+    const block = selectedBlocks[Math.floor(Math.random() * selectedBlocks.length)];
+    const img = document.createElement('img');
+    img.src = blockSprites[block] || "https://minecraft.wiki/images/Barrier_JE2_BE2.png"; // fallback
+    img.alt = block;
+    img.title = block.replace(/_/g, ' '); // hover tooltip instead of visible text
+    container.appendChild(img);
+  }
+}
+
 
       pathDiv.innerHTML = '';
 
