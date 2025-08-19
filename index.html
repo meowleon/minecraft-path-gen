@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minecraft Path Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; text-align: center; padding: 20px; }
+    .controls { margin-bottom: 20px; }
+    input { margin: 5px; padding: 5px; }
+    button { padding: 8px 15px; margin-top: 10px; cursor: pointer; }
+    .row { display: flex; justify-content: center; margin: 2px 0; }
+    .block { padding: 6px 10px; background: white; border: 1px solid #ccc; margin: 1px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Minecraft Path Generator</h1>
+  <div class="controls">
+    <input id="blocks" type="text" value="dirt, gravel, cobblestone" size="30"> <br>
+    <input id="width" type="number" value="3" min="1"> Width <br>
+    <input id="length" type="number" value="10" min="1"> Length <br>
+    <button onclick="generatePath()">Generate Path</button>
+  </div>
+
+  <div id="path"></div>
+
+  <script>
+    function generatePath() {
+      const blocks = document.getElementById('blocks').value.split(',').map(b => b.trim()).filter(Boolean);
+      const width = parseInt(document.getElementById('width').value);
+      const length = parseInt(document.getElementById('length').value);
+      const pathDiv = document.getElementById('path');
+
+      pathDiv.innerHTML = '';
+
+      for (let i = 0; i < length; i++) {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'row';
+        for (let j = 0; j < width; j++) {
+          const block = document.createElement('div');
+          block.className = 'block';
+          block.textContent = blocks[Math.floor(Math.random() * blocks.length)];
+          rowDiv.appendChild(block);
+        }
+        pathDiv.appendChild(rowDiv);
+      }
+    }
+  </script>
+</body>
+</html>
