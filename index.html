@@ -30,59 +30,103 @@
 
   <script>
     // Expand this dictionary to include all Minecraft blocks with textures from the wiki
-    const blockSprites = {
-  dirt: "https://minecraft.wiki/images/Dirt_JE3_BE2.png",
-  coarse_dirt: "https://minecraft.wiki/images/Coarse_Dirt_JE2_BE2.png",
-  rooted_dirt: "https://minecraft.wiki/images/Rooted_Dirt_JE1_BE1.png",
-  grass_block: "https://minecraft.wiki/images/Grass_Block_JE7_BE6.png",
-  podzol: "https://minecraft.wiki/images/Podzol_JE4_BE2.png",
-  mycelium: "https://minecraft.wiki/images/Mycelium_JE2_BE2.png",
-  
-  gravel: "https://minecraft.wiki/images/Gravel_JE6_BE3.png",
-  sand: "https://minecraft.wiki/images/Sand_JE5_BE3.png",
-  red_sand: "https://minecraft.wiki/images/Red_Sand_JE3_BE2.png",
-  soul_sand: "https://minecraft.wiki/images/Soul_Sand_JE3_BE2.png",
-  clay: "https://minecraft.wiki/images/Clay_Block_JE2_BE2.png",
-
-  stone: "https://minecraft.wiki/images/Stone_JE6_BE3.png",
-  cobblestone: "https://minecraft.wiki/images/Cobblestone_JE5_BE3.png",
-  mossy_cobblestone: "https://minecraft.wiki/images/Mossy_Cobblestone_JE5_BE2.png",
-  stone_bricks: "https://minecraft.wiki/images/Stone_Bricks_JE3_BE2.png",
-  mossy_stone_bricks: "https://minecraft.wiki/images/Mossy_Stone_Bricks_JE2_BE2.png",
-  cracked_stone_bricks: "https://minecraft.wiki/images/Cracked_Stone_Bricks_JE2_BE2.png",
-  andesite: "https://minecraft.wiki/images/Andesite_JE3_BE2.png",
-  diorite: "https://minecraft.wiki/images/Diorite_JE3_BE2.png",
-  granite: "https://minecraft.wiki/images/Granite_JE3_BE2.png",
-
-  bricks: "https://minecraft.wiki/images/Bricks_JE4_BE2.png",
-  nether_bricks: "https://minecraft.wiki/images/Nether_Bricks_JE3_BE2.png",
-  red_nether_bricks: "https://minecraft.wiki/images/Red_Nether_Bricks_JE2_BE2.png",
-  end_stone: "https://minecraft.wiki/images/End_Stone_JE3_BE2.png",
-  basalt: "https://minecraft.wiki/images/Basalt_JE2_BE2.png",
-  blackstone: "https://minecraft.wiki/images/Blackstone_JE1_BE1.png",
-  
-  // Wood-based (planks often used for rustic paths)
-  oak_planks: "https://minecraft.wiki/images/Oak_Planks_JE6_BE2.png",
-  spruce_planks: "https://minecraft.wiki/images/Spruce_Planks_JE6_BE2.png",
-  birch_planks: "https://minecraft.wiki/images/Birch_Planks_JE6_BE2.png",
-  jungle_planks: "https://minecraft.wiki/images/Jungle_Planks_JE6_BE2.png",
-  acacia_planks: "https://minecraft.wiki/images/Acacia_Planks_JE6_BE2.png",
-  dark_oak_planks: "https://minecraft.wiki/images/Dark_Oak_Planks_JE6_BE2.png",
-  mangrove_planks: "https://minecraft.wiki/images/Mangrove_Planks_JE1_BE1.png",
-  cherry_planks: "https://minecraft.wiki/images/Cherry_Planks_JE1.png",
-  bamboo_planks: "https://minecraft.wiki/images/Bamboo_Planks_JE1_BE1.png",
-  crimson_planks: "https://minecraft.wiki/images/Crimson_Planks_JE1_BE1.png",
-  warped_planks: "https://minecraft.wiki/images/Warped_Planks_JE1_BE1.png"
+    // Example structure with categories
+const blockCategories = {
+  "Natural": {
+    dirt: "https://minecraft.wiki/images/Dirt_JE3_BE2.png",
+    coarse_dirt: "https://minecraft.wiki/images/Coarse_Dirt_JE2_BE2.png",
+    rooted_dirt: "https://minecraft.wiki/images/Rooted_Dirt_JE1_BE1.png",
+    grass_block: "https://minecraft.wiki/images/Grass_Block_JE7_BE6.png",
+    podzol: "https://minecraft.wiki/images/Podzol_JE4_BE2.png",
+    mycelium: "https://minecraft.wiki/images/Mycelium_JE2_BE2.png",
+    sand: "https://minecraft.wiki/images/Sand_JE5_BE3.png",
+    red_sand: "https://minecraft.wiki/images/Red_Sand_JE3_BE2.png",
+    gravel: "https://minecraft.wiki/images/Gravel_JE6_BE3.png",
+    clay: "https://minecraft.wiki/images/Clay_Block_JE2_BE2.png"
+  },
+  "Stone": {
+    stone: "https://minecraft.wiki/images/Stone_JE6_BE3.png",
+    cobblestone: "https://minecraft.wiki/images/Cobblestone_JE5_BE3.png",
+    mossy_cobblestone: "https://minecraft.wiki/images/Mossy_Cobblestone_JE5_BE2.png",
+    andesite: "https://minecraft.wiki/images/Andesite_JE3_BE2.png",
+    diorite: "https://minecraft.wiki/images/Diorite_JE3_BE2.png",
+    granite: "https://minecraft.wiki/images/Granite_JE3_BE2.png",
+    stone_bricks: "https://minecraft.wiki/images/Stone_Bricks_JE3_BE2.png",
+    mossy_stone_bricks: "https://minecraft.wiki/images/Mossy_Stone_Bricks_JE2_BE2.png",
+    cracked_stone_bricks: "https://minecraft.wiki/images/Cracked_Stone_Bricks_JE2_BE2.png"
+  },
+  "Wood": {
+    oak_planks: "https://minecraft.wiki/images/Oak_Planks_JE6_BE2.png",
+    spruce_planks: "https://minecraft.wiki/images/Spruce_Planks_JE6_BE2.png",
+    birch_planks: "https://minecraft.wiki/images/Birch_Planks_JE6_BE2.png",
+    jungle_planks: "https://minecraft.wiki/images/Jungle_Planks_JE6_BE2.png",
+    acacia_planks: "https://minecraft.wiki/images/Acacia_Planks_JE6_BE2.png",
+    dark_oak_planks: "https://minecraft.wiki/images/Dark_Oak_Planks_JE6_BE2.png",
+    mangrove_planks: "https://minecraft.wiki/images/Mangrove_Planks_JE1_BE1.png",
+    cherry_planks: "https://minecraft.wiki/images/Cherry_Planks_JE1.png",
+    bamboo_planks: "https://minecraft.wiki/images/Bamboo_Planks_JE1_BE1.png",
+    crimson_planks: "https://minecraft.wiki/images/Crimson_Planks_JE1_BE1.png",
+    warped_planks: "https://minecraft.wiki/images/Warped_Planks_JE1_BE1.png"
+  },
+  "Nether": {
+    netherrack: "https://minecraft.wiki/images/Netherrack_JE2_BE2.png",
+    nether_bricks: "https://minecraft.wiki/images/Nether_Bricks_JE3_BE2.png",
+    red_nether_bricks: "https://minecraft.wiki/images/Red_Nether_Bricks_JE2_BE2.png",
+    basalt: "https://minecraft.wiki/images/Basalt_JE2_BE2.png",
+    polished_basalt: "https://minecraft.wiki/images/Polished_Basalt_JE2_BE2.png",
+    blackstone: "https://minecraft.wiki/images/Blackstone_JE1_BE1.png"
+  },
+  "End": {
+    end_stone: "https://minecraft.wiki/images/End_Stone_JE3_BE2.png",
+    end_stone_bricks: "https://minecraft.wiki/images/End_Stone_Bricks_JE1_BE1.png",
+    purpur_block: "https://minecraft.wiki/images/Purpur_Block_JE2_BE2.png"
+  }
+  // ... keep adding ALL categories and blocks
 };
 
 
+
     // Dynamically create block selection checkboxes
-    function createBlockSelector() {
-      const selector = document.getElementById('blockSelector');
-      selector.innerHTML = "";
-      for (const [block, url] of Object.entries(blockSprites)) {
-        const label = document.createElement('label');
-        label.className = 'block-option';
+   function createBlockSelector() {
+  const selector = document.getElementById('blockSelector');
+  selector.innerHTML = "";
+
+  const tabs = document.createElement('div');
+  const content = document.createElement('div');
+  selector.appendChild(tabs);
+  selector.appendChild(content);
+
+  Object.keys(blockCategories).forEach((category, index) => {
+    const tabButton = document.createElement('button');
+    tabButton.textContent = category;
+    tabButton.onclick = () => showCategory(category, content);
+    tabs.appendChild(tabButton);
+
+    if (index === 0) showCategory(category, content); // Show first tab by default
+  });
+}
+
+function showCategory(category, container) {
+  container.innerHTML = "";
+  for (const [block, url] of Object.entries(blockCategories[category])) {
+    const label = document.createElement('label');
+    label.className = 'block-option';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = block;
+
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = block;
+
+    label.appendChild(checkbox);
+    label.appendChild(img);
+    label.appendChild(document.createTextNode(block.replace(/_/g, ' ')));
+    container.appendChild(label);
+  }
+}
+
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
