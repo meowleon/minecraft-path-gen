@@ -1,132 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Minecraft Path Generator</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; text-align: center; padding: 20px; }
-    .controls { margin-bottom: 20px; }
-    input, button { margin: 5px; padding: 5px; }
-    button { padding: 8px 15px; cursor: pointer; }
-    .row { display: flex; justify-content: center; margin: 1px 0; }
-    .block { width: 32px; height: 32px; margin: 1px; image-rendering: pixelated; }
-    .block-option { display: inline-flex; align-items: center; margin: 5px; cursor: pointer; }
-    .block-option img { width: 24px; height: 24px; margin-right: 5px; image-rendering: pixelated; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f4f4f4;
+    }
+    h1 {
+      margin-top: 20px;
+    }
+    #tabs {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    #tabs button {
+      padding: 5px 10px;
+      border: 1px solid #ccc;
+      background: #eee;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #tabs button.active-tab {
+      background: #ddd;
+      font-weight: bold;
+    }
+    #tabContent {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .block-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 12px;
+    }
+    .block-option img {
+      width: 32px;
+      height: 32px;
+      image-rendering: pixelated;
+    }
+    #pathContainer {
+      display: grid;
+      justify-content: center;
+      gap: 2px;
+      margin-top: 20px;
+    }
+    #pathContainer img {
+      width: 32px;
+      height: 32px;
+      image-rendering: pixelated;
+    }
   </style>
 </head>
 <body>
   <h1>Minecraft Path Generator</h1>
 
-  <div class="controls">
-    <div id="blockSelector"></div>
-    <br>
-    <input id="width" type="number" value="3" min="1"> Width <br>
-    <input id="length" type="number" value="10" min="1"> Length <br>
-    <button onclick="generatePath()">Generate Path</button>
-  </div>
+  <div id="blockSelector"></div>
 
-  <div id="path"></div>
+  <input type="number" id="width" placeholder="Width" value="5"><br>
+  <input type="number" id="length" placeholder="Length" value="10"><br>
+  <button onclick="generatePath()">Generate Path</button>
+
+  <div id="pathContainer"></div>
 
   <script>
-    // Expand this dictionary to include all Minecraft blocks with textures from the wiki
-    // Example structure with categories
-const blockCategories = {
-  "Natural": {
-    dirt: "https://minecraft.wiki/images/Dirt_JE3_BE2.png",
-    coarse_dirt: "https://minecraft.wiki/images/Coarse_Dirt_JE2_BE2.png",
-    rooted_dirt: "https://minecraft.wiki/images/Rooted_Dirt_JE1_BE1.png",
-    grass_block: "https://minecraft.wiki/images/Grass_Block_JE7_BE6.png",
-    podzol: "https://minecraft.wiki/images/Podzol_JE4_BE2.png",
-    mycelium: "https://minecraft.wiki/images/Mycelium_JE2_BE2.png",
-    sand: "https://minecraft.wiki/images/Sand_JE5_BE3.png",
-    red_sand: "https://minecraft.wiki/images/Red_Sand_JE3_BE2.png",
-    gravel: "https://minecraft.wiki/images/Gravel_JE6_BE3.png",
-    clay: "https://minecraft.wiki/images/Clay_Block_JE2_BE2.png"
-  },
-  "Stone": {
-    stone: "https://minecraft.wiki/images/Stone_JE6_BE3.png",
-    cobblestone: "https://minecraft.wiki/images/Cobblestone_JE5_BE3.png",
-    mossy_cobblestone: "https://minecraft.wiki/images/Mossy_Cobblestone_JE5_BE2.png",
-    andesite: "https://minecraft.wiki/images/Andesite_JE3_BE2.png",
-    diorite: "https://minecraft.wiki/images/Diorite_JE3_BE2.png",
-    granite: "https://minecraft.wiki/images/Granite_JE3_BE2.png",
-    stone_bricks: "https://minecraft.wiki/images/Stone_Bricks_JE3_BE2.png",
-    mossy_stone_bricks: "https://minecraft.wiki/images/Mossy_Stone_Bricks_JE2_BE2.png",
-    cracked_stone_bricks: "https://minecraft.wiki/images/Cracked_Stone_Bricks_JE2_BE2.png"
-  },
-  "Wood": {
-    oak_planks: "https://minecraft.wiki/images/Oak_Planks_JE6_BE2.png",
-    spruce_planks: "https://minecraft.wiki/images/Spruce_Planks_JE6_BE2.png",
-    birch_planks: "https://minecraft.wiki/images/Birch_Planks_JE6_BE2.png",
-    jungle_planks: "https://minecraft.wiki/images/Jungle_Planks_JE6_BE2.png",
-    acacia_planks: "https://minecraft.wiki/images/Acacia_Planks_JE6_BE2.png",
-    dark_oak_planks: "https://minecraft.wiki/images/Dark_Oak_Planks_JE6_BE2.png",
-    mangrove_planks: "https://minecraft.wiki/images/Mangrove_Planks_JE1_BE1.png",
-    cherry_planks: "https://minecraft.wiki/images/Cherry_Planks_JE1.png",
-    bamboo_planks: "https://minecraft.wiki/images/Bamboo_Planks_JE1_BE1.png",
-    crimson_planks: "https://minecraft.wiki/images/Crimson_Planks_JE1_BE1.png",
-    warped_planks: "https://minecraft.wiki/images/Warped_Planks_JE1_BE1.png"
-  },
-  "Nether": {
-    netherrack: "https://minecraft.wiki/images/Netherrack_JE2_BE2.png",
-    nether_bricks: "https://minecraft.wiki/images/Nether_Bricks_JE3_BE2.png",
-    red_nether_bricks: "https://minecraft.wiki/images/Red_Nether_Bricks_JE2_BE2.png",
-    basalt: "https://minecraft.wiki/images/Basalt_JE2_BE2.png",
-    polished_basalt: "https://minecraft.wiki/images/Polished_Basalt_JE2_BE2.png",
-    blackstone: "https://minecraft.wiki/images/Blackstone_JE1_BE1.png"
-  },
-  "End": {
-    end_stone: "https://minecraft.wiki/images/End_Stone_JE3_BE2.png",
-    end_stone_bricks: "https://minecraft.wiki/images/End_Stone_Bricks_JE1_BE1.png",
-    purpur_block: "https://minecraft.wiki/images/Purpur_Block_JE2_BE2.png"
-  }
-  // ... keep adding ALL categories and blocks
-};
+    // Example block categories (add more later!)
+    const blockCategories = {
+      "Natural": {
+        dirt: "https://minecraft.wiki/images/Dirt_JE3_BE2.png",
+        grass_block: "https://minecraft.wiki/images/Grass_Block_JE7_BE6.png",
+        gravel: "https://minecraft.wiki/images/Gravel_JE6_BE3.png",
+        sand: "https://minecraft.wiki/images/Sand_JE5_BE3.png",
+        clay: "https://minecraft.wiki/images/Clay_Block_JE2_BE2.png"
+      },
+      "Stone": {
+        stone: "https://minecraft.wiki/images/Stone_JE6_BE3.png",
+        cobblestone: "https://minecraft.wiki/images/Cobblestone_JE5_BE3.png",
+        mossy_cobblestone: "https://minecraft.wiki/images/Mossy_Cobblestone_JE5_BE2.png",
+        stone_bricks: "https://minecraft.wiki/images/Stone_Bricks_JE3_BE2.png",
+        cracked_stone_bricks: "https://minecraft.wiki/images/Cracked_Stone_Bricks_JE2_BE2.png"
+      },
+      "Wood": {
+        oak_planks: "https://minecraft.wiki/images/Oak_Planks_JE6_BE2.png",
+        spruce_planks: "https://minecraft.wiki/images/Spruce_Planks_JE6_BE2.png",
+        birch_planks: "https://minecraft.wiki/images/Birch_Planks_JE6_BE2.png",
+        jungle_planks: "https://minecraft.wiki/images/Jungle_Planks_JE6_BE2.png",
+        dark_oak_planks: "https://minecraft.wiki/images/Dark_Oak_Planks_JE6_BE2.png"
+      },
+      "Nether": {
+        netherrack: "https://minecraft.wiki/images/Netherrack_JE5_BE2.png",
+        nether_bricks: "https://minecraft.wiki/images/Nether_Bricks_JE3_BE2.png",
+        red_nether_bricks: "https://minecraft.wiki/images/Red_Nether_Bricks_JE2_BE2.png",
+        basalt: "https://minecraft.wiki/images/Basalt_JE2_BE2.png",
+        blackstone: "https://minecraft.wiki/images/Blackstone_JE1_BE1.png"
+      },
+      "End": {
+        end_stone: "https://minecraft.wiki/images/End_Stone_JE3_BE2.png",
+        purpur_block: "https://minecraft.wiki/images/Purpur_Block_JE2_BE2.png"
+      }
+    };
 
+    function createBlockSelector() {
+      const selector = document.getElementById('blockSelector');
+      selector.innerHTML = "";
 
+      const tabs = document.createElement('div');
+      tabs.id = "tabs";
 
-    // Dynamically create block selection checkboxes
-   function createBlockSelector() {
-  const selector = document.getElementById('blockSelector');
-  selector.innerHTML = "";
+      const content = document.createElement('div');
+      content.id = "tabContent";
 
-  const tabs = document.createElement('div');
-  const content = document.createElement('div');
-  selector.appendChild(tabs);
-  selector.appendChild(content);
+      selector.appendChild(tabs);
+      selector.appendChild(content);
 
-  Object.keys(blockCategories).forEach((category, index) => {
-    const tabButton = document.createElement('button');
-    tabButton.textContent = category;
-    tabButton.onclick = () => showCategory(category, content);
-    tabs.appendChild(tabButton);
+      Object.keys(blockCategories).forEach((category, index) => {
+        const tabButton = document.createElement('button');
+        tabButton.textContent = category;
+        tabButton.onclick = () => showCategory(category, content, tabButton);
+        tabs.appendChild(tabButton);
 
-    if (index === 0) showCategory(category, content); // Show first tab by default
-  });
-}
+        if (index === 0) {
+          tabButton.classList.add("active-tab");
+          showCategory(category, content, tabButton);
+        }
+      });
+    }
 
-function showCategory(category, container) {
-  container.innerHTML = "";
-  for (const [block, url] of Object.entries(blockCategories[category])) {
-    const label = document.createElement('label');
-    label.className = 'block-option';
+    function showCategory(category, container, activeButton) {
+      container.innerHTML = "";
+      document.querySelectorAll('#tabs button').forEach(btn => btn.classList.remove("active-tab"));
+      activeButton.classList.add("active-tab");
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.value = block;
-
-    const img = document.createElement('img');
-    img.src = url;
-    img.alt = block;
-
-    label.appendChild(checkbox);
-    label.appendChild(img);
-    label.appendChild(document.createTextNode(block.replace(/_/g, ' ')));
-    container.appendChild(label);
-  }
-}
-
+      for (const [block, url] of Object.entries(blockCategories[category])) {
+        const label = document.createElement('label');
+        label.className = 'block-option';
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
@@ -135,59 +151,46 @@ function showCategory(category, container) {
         const img = document.createElement('img');
         img.src = url;
         img.alt = block;
+        img.title = block.replace(/_/g, ' ');
 
         label.appendChild(checkbox);
         label.appendChild(img);
-        label.appendChild(document.createTextNode(block.replace(/_/g, ' ')));
-        selector.appendChild(label);
+        container.appendChild(label);
       }
     }
 
     function generatePath() {
-  const selectedBlocks = Array.from(document.querySelectorAll('#blockSelector input:checked')).map(cb => cb.value);
-  const width = parseInt(document.getElementById('width').value);
-  const length = parseInt(document.getElementById('length').value);
+      const selectedBlocks = Array.from(document.querySelectorAll('#tabContent input:checked')).map(cb => cb.value);
+      const width = parseInt(document.getElementById('width').value);
+      const length = parseInt(document.getElementById('length').value);
 
-  const container = document.getElementById('pathContainer');
-  container.innerHTML = "";
-  container.style.gridTemplateColumns = `repeat(${width}, 34px)`; // match image size
+      const container = document.getElementById('pathContainer');
+      container.innerHTML = "";
+      container.style.gridTemplateColumns = `repeat(${width}, 34px)`;
 
-  if (selectedBlocks.length === 0) {
-    container.textContent = "Please select at least one block!";
-    return;
-  }
+      if (selectedBlocks.length === 0) {
+        container.textContent = "Please select at least one block!";
+        return;
+      }
 
-  for (let i = 0; i < width * length; i++) {
-    const block = selectedBlocks[Math.floor(Math.random() * selectedBlocks.length)];
-    const img = document.createElement('img');
-    img.src = blockSprites[block] || "https://minecraft.wiki/images/Barrier_JE2_BE2.png"; // fallback
-    img.alt = block;
-    img.title = block.replace(/_/g, ' '); // hover tooltip instead of visible text
-    container.appendChild(img);
-  }
-}
-
-
-      pathDiv.innerHTML = '';
-
-      for (let i = 0; i < length; i++) {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'row';
-        for (let j = 0; j < width; j++) {
-          const blockType = selected[Math.floor(Math.random() * selected.length)];
-          const img = document.createElement('img');
-          img.className = 'block';
-          img.src = blockSprites[blockType] || "https://minecraft.wiki/images/Barrier_JE2_BE2.png";
-          img.alt = blockType;
-          img.title = blockType.replace(/_/g, ' ');
-          rowDiv.appendChild(img);
-        }
-        pathDiv.appendChild(rowDiv);
+      for (let i = 0; i < width * length; i++) {
+        const block = selectedBlocks[Math.floor(Math.random() * selectedBlocks.length)];
+        const img = document.createElement('img');
+        img.src = findBlockURL(block);
+        img.alt = block;
+        img.title = block.replace(/_/g, ' ');
+        container.appendChild(img);
       }
     }
 
-    // Initialize the block selector
-    createBlockSelector();
+    function findBlockURL(block) {
+      for (const cat of Object.values(blockCategories)) {
+        if (cat[block]) return cat[block];
+      }
+      return "https://minecraft.wiki/images/Barrier_JE2_BE2.png"; // fallback
+    }
+
+    window.onload = createBlockSelector;
   </script>
 </body>
 </html>
